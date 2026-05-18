@@ -1,6 +1,6 @@
 {
-  "name": "NAM-DockEasy — Molecular Docking Core Framework",
-  "short_name": "DockEasy",
+  "name": "NAM-DOCKeasy — Molecular Docking Core Framework",
+  "short_name": "DOCKeasy",
   "description": "A complete step-by-step protocol for molecular docking studies. 9 phases, 24 steps, Vina + AutoDock4 + AMDock + HADDOCK + SwissDock. Works offline.",
   "start_url": "./",
   "display": "standalone",

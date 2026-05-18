@@ -1,5 +1,5 @@
 /* ===============================================================
- * NAM-DockEasy — single source of truth for tutorial content.
+ * NAM-DOCKeasy — single source of truth for tutorial content.
  * Edit this file to add/remove/reword phases and steps. Everything
  * in the PWA (tutorial, quick ref, glossary, citations, slides,
  * printable card) renders from this object.
@@ -23,12 +23,85 @@ window.DOCKEASY = {
 
 BRAND: {
   prefix: 'NAM-',
-  wordmark: 'DockEasy',
+  wordmark: 'DOCKeasy',
   tagline: 'Molecular Docking Basic Tutorial for Novice',
   star: '✦ From structure to binding — one pose at a time ✦',
   description: 'A general-purpose, decision-tree-guided protocol for structure-based molecular docking. Covers receptor prep, ligand prep, grid setup, docking with Vina / AutoDock4 / SwissDock / HADDOCK / AMDock, post-docking analysis, and validation. Designed as a reusable core framework.',
   version: 'Core Framework · Version 1.0',
   pills: ['9 Phases', '24 Steps', 'Vina · AD4 · AMDock · HADDOCK', 'Free + Commercial tools', 'Decision Trees Included'],
+  /* Sister tutorial. github_url is the source repo; pages_url is the live PWA. */
+  npeasy: {
+    name: 'NAM-NPeasy',
+    subtitle: 'Network Pharmacology — Core Framework',
+    github_url: 'https://github.com/DrEnoun/NAM-NPeasy',
+    pages_url: 'https://drenoun.github.io/NAM-NPeasy/',
+  },
+},
+
+/* Canonical external URL for every tool / database / web service mentioned
+ * in the tutorial. Used by ToolBadges and inline link auto-resolution.
+ * Keys are matched case-insensitively against the tool label or inline name.
+ * Add new entries here when you mention a new tool. */
+TOOL_URLS: {
+  /* Structure databases */
+  'RCSB PDB':              'https://www.rcsb.org/',
+  'PDB':                   'https://www.rcsb.org/',
+  'AlphaFold DB':          'https://alphafold.ebi.ac.uk/',
+  'AlphaFold':             'https://alphafold.ebi.ac.uk/',
+  'UniProt':               'https://www.uniprot.org/',
+  'SWISS-MODEL':           'https://swissmodel.expasy.org/',
+
+  /* Ligand databases */
+  'PubChem':               'https://pubchem.ncbi.nlm.nih.gov/',
+  'ZINC22':                'https://zinc22.docking.org/',
+  'ZINC':                  'https://zinc20.docking.org/',
+  'ChEMBL':                'https://www.ebi.ac.uk/chembl/',
+  'DrugBank':              'https://go.drugbank.com/',
+  'TCMSP':                 'https://old.tcmsp-e.com/tcmsp.php',
+
+  /* Receptor / ligand prep tools */
+  'AutoDock Tools':        'https://autodocksuite.scripps.edu/adt/',
+  'ADT':                   'https://autodocksuite.scripps.edu/adt/',
+  'Open Babel':            'https://openbabel.org/',
+  'PDB2PQR':               'https://server.poissonboltzmann.org/pdb2pqr',
+  'PDB Tools':             'https://www.bonvinlab.org/pdb-tools/',
+
+  /* Pocket detection */
+  'CASTp':                 'http://sts.bioe.uic.edu/castp/',
+  'FPocket':               'https://github.com/Discngine/fpocket',
+  'fpocket':               'https://github.com/Discngine/fpocket',
+  'DoGSiteScorer':         'https://proteins.plus/',
+
+  /* Docking engines */
+  'AutoDock Vina':         'https://vina.scripps.edu/',
+  'Vina':                  'https://vina.scripps.edu/',
+  'AutoDock4':             'https://autodock.scripps.edu/',
+  'AutoDock 4':            'https://autodock.scripps.edu/',
+  'AD4':                   'https://autodock.scripps.edu/',
+  'AMDock':                'https://github.com/Valdes-Tresanco-MS/AMDock',
+  'SwissDock':             'https://www.swissdock.ch/',
+  'HADDOCK':               'https://wenmr.science.uu.nl/haddock2.4/',
+  'HADDOCK 2.4':           'https://wenmr.science.uu.nl/haddock2.4/',
+  'ClusPro':               'https://cluspro.bu.edu/',
+  'Glide':                 'https://www.schrodinger.com/platform/products/glide/',
+  'GOLD':                  'https://www.ccdc.cam.ac.uk/solutions/software/gold/',
+
+  /* Visualisation */
+  'PyMOL':                 'https://pymol.org/',
+  'Chimera':               'https://www.cgl.ucsf.edu/chimera/',
+  'ChimeraX':              'https://www.cgl.ucsf.edu/chimerax/',
+  'VMD':                   'https://www.ks.uiuc.edu/Research/vmd/',
+  'BIOVIA':                'https://discover.3ds.com/discovery-studio-visualizer-download',
+  'Discovery Studio':      'https://discover.3ds.com/discovery-studio-visualizer-download',
+  'LigPlot+':              'https://www.ebi.ac.uk/thornton-srv/software/LigPlus/',
+  'PLIP':                  'https://plip-tool.biotec.tu-dresden.de/',
+
+  /* MD */
+  'GROMACS':               'https://www.gromacs.org/',
+  'AMBER':                 'https://ambermd.org/',
+  'NAMD':                  'https://www.ks.uiuc.edu/Research/namd/',
+  'OpenMM':                'https://openmm.org/',
+  'CHARMM-GUI':            'https://www.charmm-gui.org/',
 },
 
 DECISION_TREE: {

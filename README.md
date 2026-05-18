@@ -1,4 +1,4 @@
-# NAM-DockEasy
+# NAM-DOCKeasy
 
 > *Molecular Docking Basic Tutorial for Novice* — a Progressive Web App walking you through structure-based docking from receptor prep to MD handoff. Companion to **NAM-NPeasy**.
 
@@ -124,7 +124,7 @@ Frame it as: *"A standardised decision-tree-guided molecular docking protocol fo
 
 ## Citation (once published)
 
-[Author names]. NAM-DockEasy: A Molecular Docking Core Framework for Novice Researchers. [Journal]. [Year]. DOI: [to be assigned]
+[Author names]. NAM-DOCKeasy: A Molecular Docking Core Framework for Novice Researchers. [Journal]. [Year]. DOI: [to be assigned]
 
 ---
 

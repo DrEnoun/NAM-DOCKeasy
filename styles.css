@@ -1,12 +1,12 @@
 /* ===================================================================
- * NAM-DockEasy — shared stylesheet
+ * NAM-DOCKeasy — shared stylesheet
  * Inherits from the design-system tokens; overrides --accent so the
  * Tweaks panel can switch the brand accent at runtime.
  * =================================================================== */
 @import url('colors_and_type.css');
 
 :root {
-  /* DockEasy primary accent = CORAL (Phase G hue from NPeasy — natural family thread) */
+  /* DOCKeasy primary accent = CORAL (Phase G hue from NPeasy — natural family thread) */
   --de-accent:      #F87171;
   --de-accent-lt:   #FEE2E2;
   --de-accent-dark: #7F1D1D;
@@ -144,7 +144,23 @@ body { background: var(--bg-page); color: var(--dark); font-family: var(--font-b
 
 /* ── TOOL BADGES ────────────────────────────────────────────────── */
 .tools-row { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
-.tool-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 1px solid; cursor: default; }
+.tool-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 1px solid; cursor: default; display: inline-flex; align-items: center; gap: 4px; }
+.tool-badge-link { cursor: pointer; text-decoration: none; transition: transform 0.12s, box-shadow 0.12s; }
+.tool-badge-link:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15,23,42,0.10); }
+.tool-badge-arrow { font-size: 9px; opacity: 0.6; transition: transform 0.12s, opacity 0.12s; }
+.tool-badge-link:hover .tool-badge-arrow { opacity: 1; transform: translate(1px, -1px); }
+
+/* Inline auto-linked tool / DB names inside body copy */
+.tool-link {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(transparent 80%, var(--de-accent-lt) 80%);
+  background-size: 100% 100%;
+  border-bottom: 1px dotted var(--de-accent-dark);
+  padding: 0 1px;
+  transition: background-size 0.15s, color 0.15s;
+}
+.tool-link:hover { background-size: 100% 200%; color: var(--de-accent-dark); }
 .tb-a  { background: var(--sage-lt);  color: #065F46; border-color: #6EE7B7; }
 .tb-b  { background: var(--sky-lt);   color: #0C4A6E; border-color: #7DD3FC; }
 .tb-c  { background: var(--gold-lt);  color: #78350F; border-color: #FCD34D; }
@@ -173,7 +189,7 @@ body { background: var(--bg-page); color: var(--dark); font-family: var(--font-b
 .ph-lilac { --ph: var(--lilac); --ph-bg: var(--lilac-lt); --ph-dark: var(--lilac-dark); }
 
 /* ===================================================================
- * NOVEL COMPONENTS — unique to DockEasy
+ * NOVEL COMPONENTS — unique to DOCKeasy
  * =================================================================== */
 
 /* ── Interactive decision tree ─────────────────────────────────── */
@@ -799,4 +815,209 @@ body { background: var(--bg-page); color: var(--dark); font-family: var(--font-b
   .menu-toggle { display: flex; }
   .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
   .gridbox { grid-template-columns: 1fr; }
+}
+
+/* ===================================================================
+ * DECISION TREE — modal & trigger button
+ * =================================================================== */
+
+/* Trigger button — hero size sits prominently after the hero band */
+.dtm-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--de-accent) 0%, color-mix(in srgb, var(--de-accent) 80%, #000) 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--de-accent) 25%, transparent);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  padding: 18px 24px;
+  border-radius: 14px;
+}
+.dtm-trigger:hover { transform: translateY(-2px); box-shadow: 0 16px 36px color-mix(in srgb, var(--de-accent) 32%, transparent); filter: brightness(1.04); }
+.dtm-trigger:active { transform: translateY(0); }
+
+.dtm-trigger-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dtm-trigger-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.dtm-trigger-label { font-family: var(--font-display); font-size: 22px; line-height: 1.15; font-weight: 400; }
+.dtm-trigger-sub { font-size: 12px; opacity: 0.78; letter-spacing: 0.02em; }
+.dtm-trigger-arrow {
+  font-size: 24px;
+  opacity: 0.85;
+  transition: transform 0.15s;
+  align-self: center;
+}
+.dtm-trigger:hover .dtm-trigger-arrow { transform: translateX(4px); }
+
+/* Inline trigger — sits inside a tutorial section */
+.dtm-trigger-inline {
+  padding: 12px 18px;
+  border-radius: 10px;
+  gap: 12px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--de-accent) 20%, transparent);
+}
+.dtm-trigger-inline .dtm-trigger-icon { width: 32px; height: 32px; border-radius: 8px; }
+.dtm-trigger-inline .dtm-trigger-icon svg { width: 16px; height: 16px; }
+.dtm-trigger-inline .dtm-trigger-label { font-family: var(--font-body); font-size: 14px; font-weight: 600; letter-spacing: 0; }
+.dtm-trigger-inline .dtm-trigger-arrow { font-size: 16px; }
+
+/* Backdrop overlay */
+.dtm-backdrop {
+  position: fixed; inset: 0;
+  background: color-mix(in srgb, #0A1628 78%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 20px;
+  overflow-y: auto;
+  animation: dtm-fade-in 0.18s ease-out;
+}
+@keyframes dtm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dtm-window {
+  background: #0F1E36;
+  width: 100%;
+  max-width: 760px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: dtm-pop-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto 0;
+}
+@keyframes dtm-pop-in {
+  from { transform: translateY(10px) scale(0.985); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.dtm-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--de-accent) 14%, #0A1628) 0%,
+    #0F1E36 70%);
+}
+.dtm-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--de-accent);
+  margin-bottom: 8px;
+}
+.dtm-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: white;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+.dtm-sub { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.55; max-width: 540px; margin: 0; }
+
+.dtm-close {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.dtm-close:hover { background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.2); }
+
+.dtm-body { padding: 24px 32px 32px; background: #0A1628; max-height: 70vh; overflow-y: auto; }
+/* Override the inner tree's margin so it fits cleanly inside the modal */
+.dtm-body .idt { margin: 0; background: transparent; padding: 0; border: none; }
+
+@media (max-width: 640px) {
+  .dtm-backdrop { padding: 20px 12px; }
+  .dtm-window { border-radius: 12px; }
+  .dtm-head { padding: 20px 20px 16px; }
+  .dtm-title { font-size: 22px; }
+  .dtm-body { padding: 18px 20px 24px; }
+  .dtm-trigger { gap: 12px; padding: 14px 18px; }
+  .dtm-trigger-icon { width: 36px; height: 36px; }
+  .dtm-trigger-label { font-size: 18px; }
+  .dtm-trigger-sub { font-size: 11px; }
+}
+
+/* ===================================================================
+ * SISTER PROJECT — NAM-NPeasy callout card
+ * =================================================================== */
+.sister-card {
+  margin: 0 48px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 22px 26px;
+  background: linear-gradient(135deg, #F0F4FA 0%, #E2E8F0 100%);
+  border: 1px solid var(--gray-2);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sister-card:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(15,23,42,0.10); }
+.sister-card .sc-mark {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.sister-card .sc-eyebrow {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: #0F766E;
+  margin-bottom: 4px;
+}
+.sister-card .sc-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--dark);
+  line-height: 1.2;
+}
+.sister-card .sc-title em { font-style: italic; color: #0F766E; }
+.sister-card .sc-sub { font-size: 12px; color: var(--gray-4); margin-top: 2px; }
+.sister-card .sc-cta {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0F766E;
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.sister-card .sc-cta::after { content: '↗'; }
+
+@media (max-width: 640px) {
+  .sister-card { margin: 0 20px 20px; grid-template-columns: auto 1fr; padding: 16px 18px; gap: 14px; }
+  .sister-card .sc-cta { grid-column: 1 / -1; justify-self: flex-end; }
 }

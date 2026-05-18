@@ -6,7 +6,7 @@ function Sidebar({ activeId, onNavigate, currentPage, open, onDismiss }) {
   const groups = [];
 
   // Top-level pages
-  groups.push({ label: 'NAM-DockEasy', items: [
+  groups.push({ label: 'NAM-DOCKeasy', items: [
     { id: 'home',     text: 'Home',         href: 'index.html' },
     { id: 'tutorial', text: 'Tutorial',     href: 'tutorial.html' },
     { id: 'case-study', text: 'Case study · Capsaicin → TRPV1', href: 'case-study.html' },
@@ -28,6 +28,13 @@ function Sidebar({ activeId, onNavigate, currentPage, open, onDismiss }) {
     });
   }
 
+  /* Sister project — always visible at the bottom of the nav. */
+  if (D.BRAND && D.BRAND.npeasy) {
+    groups.push({ label: 'Sister project', items: [
+      { id: 'npeasy-link', text: 'NAM-NPeasy ↗', href: D.BRAND.npeasy.pages_url, external: true },
+    ]});
+  }
+
   return (
     <>
       {open ? <div className="overlay active" onClick={onDismiss} /> : null}
@@ -43,6 +50,8 @@ function Sidebar({ activeId, onNavigate, currentPage, open, onDismiss }) {
               const isActive = activeId === it.id || (currentPage === it.id);
               const props = it.anchor
                 ? { href: '#' + it.id, onClick: e => { e.preventDefault(); onNavigate && onNavigate(it.id); } }
+                : it.external
+                ? { href: it.href, target: '_blank', rel: 'noopener noreferrer' }
                 : { href: it.href };
               return (
                 <a key={it.id} className={"nav-item" + (isActive ? " active" : "")} {...props}>

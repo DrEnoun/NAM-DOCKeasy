@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NAM-DockEasy — Tutorial</title>
+<title>NAM-DOCKeasy — Tutorial</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
@@ -25,6 +25,7 @@
 <script type="text/babel" src="Hero.jsx"></script>
 <script type="text/babel" src="Primitives.jsx"></script>
 <script type="text/babel" src="InteractiveDecisionTree.jsx"></script>
+<script type="text/babel" src="DecisionTreeModal.jsx"></script>
 <script type="text/babel" src="GridBoxVisualizer.jsx"></script>
 <script type="text/babel" src="PoseRanker.jsx"></script>
 <script type="text/babel" src="InteractionLegend.jsx"></script>
@@ -87,6 +88,21 @@ function App() {
     return () => btn?.removeEventListener('click', h);
   }, []);
 
+  /* Honour #phaseId in the URL — e.g. coming from the home-page decision tree. */
+  useEffect(() => {
+    const id = window.location.hash.replace('#', '');
+    if (!id) return;
+    /* Wait one frame so the phase sections are mounted before we scroll. */
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 8;
+        window.scrollTo({ top, behavior: 'smooth' });
+        setActiveId(id);
+      }
+    });
+  }, []);
+
   function navigate(id) {
     setActiveId(id);
     setSidebarOpen(false);
@@ -105,12 +121,14 @@ function App() {
       <main className="main">
         <Hero />
 
-        {/* Decision tree — the entry point, now interactive */}
+        {/* Decision tree — the entry point, now a popup */}
         <section className="content-section ph-coral" id="decision">
           <div className="section-tag"><span className="tag-dot" />Decide first</div>
           <h2 className="section-title">Which workflow applies?</h2>
-          <p className="section-desc">Answer the three questions below. Your plan — engine, phases to focus on, phases you can skip — updates in real time as you click.</p>
-          <InteractiveDecisionTree onNavigate={navigate} />
+          <p className="section-desc">Open the interactive decision tree — three short questions, and you'll get a tailored plan showing your engine choice, the phases to focus on, and the ones you can skip.</p>
+          <div style={{margin:'14px 0 20px'}}>
+            <DecisionTreeButton size="hero" onNavigate={navigate} />
+          </div>
           <Callout kind="green"><strong>New to docking?</strong> Start with the worked example — <a href="case-study.html" style={{color:'#065F46',fontWeight:700}}>dock capsaicin into TRPV1 step-by-step →</a> Eleven checkpoints, real coordinates, paste your own screenshots into each.</Callout>
         </section>
 
