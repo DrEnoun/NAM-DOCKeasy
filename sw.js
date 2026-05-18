@@ -1,6 +1,6 @@
 /* NAM-DOCKeasy — service worker
  * Cache-first strategy for offline use. Mirror of NAM-NPeasy sw.js. */
-const CACHE_NAME = 'dockeasy-v4';
+const CACHE_NAME = 'dockeasy-v5';
 const ASSETS = [
   './',
   './index.html',

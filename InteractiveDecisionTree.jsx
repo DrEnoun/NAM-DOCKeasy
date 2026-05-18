@@ -1,24 +1,26 @@
 /* eslint-disable */
-/* InteractiveDecisionTree — answer the questions, get a live recommendation.
+/* InteractiveDecisionTree — step-by-step wizard.
  *
- * Each question is rendered with selectable options. As soon as ALL questions
- * have an answer, a recommendation card fades in below — showing the engine
- * to pick, phases to skip, phases to focus on, and a deep link into the
- * tutorial. Re-clicking any answer updates the recommendation in real time.
+ * Shows one question at a time. Clicking an option auto-advances to the next
+ * question with a soft slide transition. After the last question, the
+ * recommendation card animates in showing engine + phase plan.
  *
- * The recommendation logic is pure: takes the answer object → returns a
- * structured plan. Easy to extend by adding entries to RECO_RULES below.
+ * Behaviour:
+ *   - Progress dots at the top reflect step state (current / answered / pending).
+ *   - "Back" button steps backwards through answered questions; current answer
+ *     is preserved so users can change their mind without restarting.
+ *   - "Start over" resets everything from the recommendation screen.
+ *   - onNavigate(id) is invoked when the user clicks a focus chip or the final
+ *     "Start at Phase A →" call to action.
  */
-const { useState: useStateDT, useMemo: useMemoDT } = React;
+const { useState: useStateDT, useMemo: useMemoDT, useEffect: useEffectDT } = React;
 
-/* ---------- recommendation logic ---------- */
+/* ---------- recommendation logic (unchanged) ---------- */
 function buildRecommendation(answers) {
-  // answers is { q0: 0|1, q1: 0|1|2, q2: 0|1 } — index into options
   if (Object.keys(answers).length < 3) return null;
-
-  const site   = answers.q0;   // 0 = known, 1 = unknown
-  const flex   = answers.q1;   // 0 = rigid, 1 = sidechain, 2 = large
-  const system = answers.q2;   // 0 = small-mol, 1 = protein-protein
+  const site   = answers.q0;
+  const flex   = answers.q1;
+  const system = answers.q2;
 
   let engine, engineNote;
   if (system === 1) {
@@ -35,7 +37,6 @@ function buildRecommendation(answers) {
     engineNote = 'rigid receptor';
   }
 
-  // Build phase plan
   const skip = [];
   const focus = [];
   const startAt = { id: 'phA', label: 'Phase A · Receptor preparation' };
@@ -59,7 +60,6 @@ function buildRecommendation(answers) {
   }
   focus.push({ id: 'phH', text: 'Phase H · always redock the co-crystal ligand' });
 
-  // Headline
   const headline = (
     site === 0 && flex === 0 && system === 0
       ? 'Standard rigid targeted docking — the simplest path.'
@@ -75,15 +75,16 @@ function buildRecommendation(answers) {
   return { engine, engineNote, skip, focus, headline, startAt };
 }
 
-/* ---------- inner option button ---------- */
-function DTOption({ active, label, body, onClick }) {
+/* ---------- option button ---------- */
+function DTOption({ active, label, body, onClick, hotkey }) {
   return (
-    <button className={"idt-option" + (active ? ' active' : '')} onClick={onClick}>
-      <span className="idt-arrow">{active ? '✓' : '→'}</span>
-      <span className="idt-opt-text">
-        <span className="idt-opt-label">{label}</span>
-        <span className="idt-opt-body">{body}</span>
+    <button className={"idtw-option" + (active ? ' active' : '')} onClick={onClick}>
+      {hotkey ? <span className="idtw-hotkey" aria-hidden="true">{hotkey}</span> : null}
+      <span className="idtw-opt-text">
+        <span className="idtw-opt-label">{label}</span>
+        <span className="idtw-opt-body">{body}</span>
       </span>
+      <span className="idtw-opt-arrow" aria-hidden="true">{active ? '✓' : '→'}</span>
     </button>
   );
 }
@@ -92,95 +93,134 @@ function DTOption({ active, label, body, onClick }) {
 function InteractiveDecisionTree({ onNavigate }) {
   const D = window.DOCKEASY;
   const QS = D.DECISION_TREE.questions;
+
   const [answers, setAnswers] = useStateDT({});
+  const [step, setStep] = useStateDT(0);          // 0..QS.length → recommendation
+  const [direction, setDirection] = useStateDT('forward');
 
   const reco = useMemoDT(() => buildRecommendation(answers), [answers]);
-  const complete = Object.keys(answers).length === QS.length;
+  const onReco = step >= QS.length;
 
-  function answer(qi, oi) {
+  /* Keyboard: 1 / 2 / 3 picks options, Backspace goes back */
+  useEffectDT(() => {
+    function key(e) {
+      if (onReco) return;
+      const q = QS[step];
+      if (!q) return;
+      if (e.key === 'Backspace' && step > 0) { goBack(); }
+      const n = parseInt(e.key, 10);
+      if (!Number.isNaN(n) && n >= 1 && n <= q.options.length) {
+        pickAnswer(step, n - 1);
+      }
+    }
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  });
+
+  function pickAnswer(qi, oi) {
     setAnswers(a => ({ ...a, ['q' + qi]: oi }));
+    setDirection('forward');
+    /* Small delay so the active-state animation is visible before advance */
+    setTimeout(() => setStep(qi + 1), 220);
   }
-  function reset() { setAnswers({}); }
+  function goBack() {
+    if (step <= 0) return;
+    setDirection('back');
+    setStep(s => s - 1);
+  }
+  function reset() {
+    setAnswers({});
+    setStep(0);
+    setDirection('forward');
+  }
 
   return (
-    <div className="idt">
-      <div className="idt-head">
-        <div className="dt-title">{D.DECISION_TREE.title}</div>
-        <button className="idt-reset" onClick={reset} disabled={!Object.keys(answers).length}>↺ Reset</button>
+    <div className="idtw">
+      {/* Progress dots */}
+      <div className="idtw-progress">
+        {QS.map((q, i) => {
+          const state = i < step ? 'done' : (i === step && !onReco) ? 'current' : 'pending';
+          return (
+            <button
+              key={i}
+              className={"idtw-dot idtw-dot-" + state}
+              onClick={() => {
+                if (state !== 'pending') {
+                  setDirection(i < step ? 'back' : 'forward');
+                  setStep(i);
+                }
+              }}
+              disabled={state === 'pending' && Object.keys(answers).length < i}
+              aria-label={`Question ${i + 1}`}>
+              <span className="idtw-dot-num">{i + 1}</span>
+            </button>
+          );
+        })}
+        <div className="idtw-dot-rail" />
+        <div className="idtw-dot-rail-fill" style={{ width: onReco ? '100%' : (step / QS.length * 100) + '%' }} />
       </div>
 
-      {QS.map((q, qi) => {
-        const ans = answers['q' + qi];
-        const answered = ans !== undefined;
-        return (
-          <div className={"idt-question" + (answered ? ' answered' : '')} key={qi}>
-            <div className="idt-q-row">
-              <div className="idt-q-num">Q{qi + 1}</div>
-              <div className="idt-q-text">{q.q}</div>
+      {/* Stage — question or recommendation */}
+      <div className={"idtw-stage idtw-dir-" + direction} key={onReco ? 'reco' : 'q-' + step}>
+        {!onReco ? (
+          <div className="idtw-question">
+            <div className="idtw-q-meta">
+              <span className="idtw-q-counter">Question {step + 1} of {QS.length}</span>
+              {step > 0 ? <button className="idtw-back" onClick={goBack}>← Back</button> : null}
             </div>
-            <div className="idt-options">
-              {q.options.map((opt, oi) => (
-                <DTOption key={oi}
-                          active={ans === oi}
-                          label={opt.label}
-                          body={opt.body}
-                          onClick={() => answer(qi, oi)} />
+            <h3 className="idtw-q-text">{QS[step].q}</h3>
+            <div className="idtw-options">
+              {QS[step].options.map((opt, oi) => (
+                <DTOption
+                  key={oi}
+                  active={answers['q' + step] === oi}
+                  label={opt.label}
+                  body={opt.body}
+                  onClick={() => pickAnswer(step, oi)}
+                  hotkey={oi + 1} />
               ))}
             </div>
+            <div className="idtw-hint">Pick an option to continue · press <kbd>1</kbd>{QS[step].options.length > 1 ? <>–<kbd>{QS[step].options.length}</kbd></> : null} on your keyboard</div>
           </div>
-        );
-      })}
-
-      {/* progress */}
-      <div className="idt-progress">
-        <div className="idt-progress-bar" style={{ width: (Object.keys(answers).length / QS.length * 100) + '%' }} />
-        <div className="idt-progress-label">
-          {complete ? 'All answered — see your plan below' : `${Object.keys(answers).length} of ${QS.length} answered`}
-        </div>
-      </div>
-
-      {/* live recommendation card */}
-      <div className={"idt-reco" + (complete ? ' visible' : '')}>
-        {complete && reco ? (
-          <>
-            <div className="idt-reco-eyebrow">Your plan</div>
-            <div className="idt-reco-headline">{reco.headline}</div>
-            <div className="idt-reco-grid">
-              <div className="idt-reco-cell">
-                <div className="idt-reco-label">Use this engine</div>
-                <div className="idt-reco-engine">{reco.engine}</div>
-                <div className="idt-reco-engine-note">because · {reco.engineNote}</div>
+        ) : reco ? (
+          <div className="idtw-reco-card">
+            <div className="idtw-reco-eyebrow">Your tailored plan</div>
+            <div className="idtw-reco-headline">{reco.headline}</div>
+            <div className="idtw-reco-grid">
+              <div className="idtw-reco-cell">
+                <div className="idtw-reco-label">Use this engine</div>
+                <div className="idtw-reco-engine">{reco.engine}</div>
+                <div className="idtw-reco-engine-note">because · {reco.engineNote}</div>
               </div>
-              <div className="idt-reco-cell">
-                <div className="idt-reco-label">Focus on</div>
-                <div className="idt-chips">
+              <div className="idtw-reco-cell">
+                <div className="idtw-reco-label">Focus on</div>
+                <div className="idtw-chips">
                   {reco.focus.map(f => (
-                    <button key={f.id} className="idt-chip idt-chip-focus" onClick={() => onNavigate && onNavigate(f.id)}>
+                    <button key={f.id} className="idtw-chip idtw-chip-focus" onClick={() => onNavigate && onNavigate(f.id)}>
                       {f.text}
                     </button>
                   ))}
                 </div>
               </div>
               {reco.skip.length ? (
-                <div className="idt-reco-cell">
-                  <div className="idt-reco-label">You can skip</div>
-                  <div className="idt-chips">
+                <div className="idtw-reco-cell">
+                  <div className="idtw-reco-label">You can skip</div>
+                  <div className="idtw-chips">
                     {reco.skip.map(s => (
-                      <span key={s.id} className="idt-chip idt-chip-skip">{s.text}</span>
+                      <span key={s.id} className="idtw-chip idtw-chip-skip">{s.text}</span>
                     ))}
                   </div>
                 </div>
               ) : null}
             </div>
-            <button className="idt-cta" onClick={() => onNavigate && onNavigate(reco.startAt.id)}>
-              Start at {reco.startAt.label} →
-            </button>
-          </>
-        ) : (
-          <div className="idt-reco-placeholder">
-            <span style={{opacity:0.6, fontStyle:'italic'}}>Answer all three questions to see your recommended workflow.</span>
+            <div className="idtw-reco-actions">
+              <button className="idtw-cta" onClick={() => onNavigate && onNavigate(reco.startAt.id)}>
+                Start at {reco.startAt.label} →
+              </button>
+              <button className="idtw-secondary" onClick={reset}>↺ Start over</button>
+            </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

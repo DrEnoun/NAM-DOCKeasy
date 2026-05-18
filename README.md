@@ -128,4 +128,4 @@ Frame it as: *"A standardised decision-tree-guided molecular docking protocol fo
 
 ---
 
-*Developed by Dr Nur 'Ainun Mokhtar · Faculty of Pharmacy · UiTM Bertam · Proliv Life Sciences / Synacinn™ Aidecine research programme.*
+*Developed by Dr Nur 'Ainun Mokhtar · Faculty of Pharmacy · UiTM Bertam, Malaysia*
