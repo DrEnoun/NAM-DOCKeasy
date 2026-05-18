@@ -1,0 +1,188 @@
+/* ============================================
+ * NAM-NPeasy Design System — Tokens
+ * Network Pharmacology Core Framework PWA
+ * ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── BRAND COLORS ──────────────────────────── */
+  /* Deep navy ladder — the spine of the brand */
+  --navy:    #0A1628;
+  --navy-2:  #112240;
+  --blue:    #1E3A5F;
+  --dark:    #0F172A;
+
+  /* Signature teal — accents, callouts, active states */
+  --accent:  #2DD4BF;
+  --accent-lt: #CCFBF1;
+
+  /* ── PHASE PALETTE ─────────────────────────── */
+  /* Each protocol phase has a hue with a -dark and -lt pair */
+  --sage:    #34D399;  --sage-lt:  #D1FAE5;  --sage-dark:  #065F46;
+  --sky:     #38BDF8;  --sky-lt:   #E0F2FE;  --sky-dark:   #0C4A6E;
+  --gold:    #F59E0B;  --gold-lt:  #FEF3C7;  --gold-dark:  #78350F;
+  --teal:    #2DD4BF;  --teal-lt:  #CCFBF1;  --teal-dark:  #134E4A;
+  --coral:   #F87171;  --coral-lt: #FEE2E2;  --coral-dark: #7F1D1D;
+  --lilac:   #A78BFA;  --lilac-lt: #EDE9FE;  --lilac-dark: #4C1D95;
+
+  /* ── NEUTRAL LADDER ────────────────────────── */
+  --white:   #FFFFFF;
+  --off:     #F8FAFD;   /* page background */
+  --gray-1:  #F1F5F9;   /* subtle fills, zebra rows */
+  --gray-2:  #E2E8F0;   /* hairline borders */
+  --gray-3:  #94A3B8;   /* muted text, icons */
+  --gray-4:  #64748B;   /* secondary text */
+  --gray-5:  #334155;   /* body text */
+
+  /* ── SEMANTIC ──────────────────────────────── */
+  --fg-1:    var(--dark);     /* primary text */
+  --fg-2:    var(--gray-5);   /* body text */
+  --fg-3:    var(--gray-4);   /* secondary */
+  --fg-mute: var(--gray-3);   /* placeholder, hints */
+  --bg-page: var(--off);
+  --bg-card: var(--white);
+  --bg-zebra: var(--gray-1);
+  --border:  var(--gray-2);
+  --border-soft: var(--gray-1);
+
+  /* On-dark equivalents */
+  --on-dark-fg: rgba(255,255,255,1);
+  --on-dark-fg-2: rgba(255,255,255,0.75);
+  --on-dark-fg-3: rgba(255,255,255,0.55);
+  --on-dark-border: rgba(255,255,255,0.12);
+  --on-dark-fill: rgba(255,255,255,0.08);
+
+  /* ── TYPOGRAPHY ────────────────────────────── */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Type scale — modest, mobile-first */
+  --t-h1:    38px;   /* hero */
+  --t-h2:    26px;   /* section title */
+  --t-h3:    18px;   /* phase name */
+  --t-h4:    14px;   /* step title */
+  --t-body:  13.5px; /* default body */
+  --t-sm:    12.5px; /* protocol bullets, captions */
+  --t-xs:    11.5px; /* labels, table rows */
+  --t-micro: 10px;   /* eyebrow tags */
+  --t-code:  11px;
+
+  --lh-tight: 1.2;
+  --lh-snug:  1.45;
+  --lh-base:  1.6;
+  --lh-loose: 1.7;
+
+  --ls-tag:    0.12em;  /* eyebrows + nav group labels */
+  --ls-tag-lg: 0.15em;  /* hero tag */
+  --ls-code:   0.02em;
+
+  /* ── RADIUS & SPACE ────────────────────────── */
+  --r-sm:    8px;
+  --r:      12px;
+  --r-pill: 20px;
+  --r-full: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 44px;
+  --space-8: 60px;
+
+  /* ── SHADOWS ───────────────────────────────── */
+  --shadow-card:  0 4px 16px rgba(0,0,0,0.07);
+  --shadow-pop:   0 12px 32px rgba(10,22,40,0.18);
+  --shadow-inset: inset 0 0 0 1px rgba(255,255,255,0.06);
+
+  /* ── HERO GRADIENT ─────────────────────────── */
+  --grad-hero:  linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 50%, var(--blue) 100%);
+  --grad-teal-glow:  radial-gradient(circle, rgba(45,212,191,0.12) 0%, transparent 70%);
+  --grad-lilac-glow: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+}
+
+/* ============================================
+ * SEMANTIC TYPE STYLES
+ * ============================================ */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--t-body);
+  line-height: var(--lh-base);
+  color: var(--fg-1);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+.h1, h1 {
+  font-family: var(--font-display);
+  font-size: var(--t-h1);
+  line-height: var(--lh-tight);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.h1 em, h1 em { font-style: italic; color: var(--accent); }
+
+.h2, h2 {
+  font-family: var(--font-display);
+  font-size: var(--t-h2);
+  line-height: var(--lh-tight);
+  font-weight: 400;
+}
+
+.h3, h3 {
+  font-family: var(--font-body);
+  font-size: var(--t-h3);
+  line-height: var(--lh-tight);
+  font-weight: 700;
+}
+
+.h4, h4 {
+  font-family: var(--font-body);
+  font-size: var(--t-h4);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+}
+
+.body, p {
+  font-size: var(--t-body);
+  line-height: var(--lh-loose);
+  color: var(--fg-2);
+}
+
+.eyebrow {
+  font-size: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: var(--ls-tag);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.label-sm {
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--fg-3);
+}
+
+.code, code, kbd {
+  font-family: var(--font-mono);
+  font-size: var(--t-code);
+  font-weight: 600;
+  letter-spacing: var(--ls-code);
+}
+
+/* Inline code chip — accent on navy, the brand's signature mono treatment */
+.code-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--t-code);
+  font-weight: 600;
+  background: var(--navy);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}

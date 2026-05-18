@@ -1,0 +1,28 @@
+{
+  "name": "NAM-DockEasy — Molecular Docking Core Framework",
+  "short_name": "DockEasy",
+  "description": "A complete step-by-step protocol for molecular docking studies. 9 phases, 24 steps, Vina + AutoDock4 + AMDock + HADDOCK + SwissDock. Works offline.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A1628",
+  "theme_color": "#0A1628",
+  "scope": "./",
+  "lang": "en",
+  "categories": ["education", "medical", "research"],
+  "icons": [
+    { "src": "icons/icon-96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-128.png",  "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-144.png",  "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-152.png",  "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-384.png",  "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Tutorial",       "short_name": "Tutorial",   "url": "./tutorial.html" },
+    { "name": "Case study",     "short_name": "Case",       "url": "./case-study.html" },
+    { "name": "Quick Reference","short_name": "Quick Ref",  "url": "./quickref.html" },
+    { "name": "Glossary",       "short_name": "Glossary",   "url": "./glossary.html" }
+  ]
+}

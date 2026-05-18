@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAM-DockEasy — Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="accent-coral" data-screen-label="Tutorial">
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div id="root"></div>
+
+<script src="content.js"></script>
+<script src="image-slot.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="Hero.jsx"></script>
+<script type="text/babel" src="Primitives.jsx"></script>
+<script type="text/babel" src="InteractiveDecisionTree.jsx"></script>
+<script type="text/babel" src="GridBoxVisualizer.jsx"></script>
+<script type="text/babel" src="PoseRanker.jsx"></script>
+<script type="text/babel" src="InteractionLegend.jsx"></script>
+<script type="text/babel" src="DockVsMdMatrix.jsx"></script>
+<script type="text/babel" src="PhaseSection.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "accent": "coral"
+}/*EDITMODE-END*/;
+
+const ACCENTS = [
+  { value: 'coral', color: '#F87171' },
+  { value: 'teal',  color: '#2DD4BF' },
+  { value: 'sky',   color: '#38BDF8' },
+  { value: 'lilac', color: '#A78BFA' },
+  { value: 'amber', color: '#F59E0B' },
+];
+function AccentSwatchRow({ value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-label">Accent</div>
+      <div style={{display:'flex', gap:6}}>
+        {ACCENTS.map(a => (
+          <button key={a.value}
+                  onClick={() => onChange(a.value)}
+                  title={a.value}
+                  style={{
+                    width: 26, height: 26, borderRadius: 6,
+                    background: a.color,
+                    border: value === a.value ? '2px solid #0F172A' : '2px solid transparent',
+                    boxShadow: '0 0 0 1px rgba(0,0,0,0.06)',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const D = window.DOCKEASY;
+  const [activeId, setActiveId] = useState('decision');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Open the first step of every phase by default — feels welcoming.
+  const initialOpen = {};
+  D.PHASES.forEach(p => { initialOpen[p.id + '-1'] = true; });
+  const [openSteps, setOpenSteps] = useState(initialOpen);
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULS);
+
+  useEffect(() => { document.body.className = 'accent-' + t.accent; }, [t.accent]);
+  useEffect(() => {
+    const btn = document.getElementById('menuToggle');
+    const h = () => setSidebarOpen(v => !v);
+    btn?.addEventListener('click', h);
+    return () => btn?.removeEventListener('click', h);
+  }, []);
+
+  function navigate(id) {
+    setActiveId(id);
+    setSidebarOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      // scrollIntoView is forbidden; use scrollTo on window instead
+      const top = el.getBoundingClientRect().top + window.scrollY - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }
+  function toggleStep(id) { setOpenSteps(s => ({ ...s, [id]: !s[id] })); }
+
+  return (
+    <>
+      <Sidebar activeId={activeId} onNavigate={navigate} currentPage="tutorial" open={sidebarOpen} onDismiss={() => setSidebarOpen(false)} />
+      <main className="main">
+        <Hero />
+
+        {/* Decision tree — the entry point, now interactive */}
+        <section className="content-section ph-coral" id="decision">
+          <div className="section-tag"><span className="tag-dot" />Decide first</div>
+          <h2 className="section-title">Which workflow applies?</h2>
+          <p className="section-desc">Answer the three questions below. Your plan — engine, phases to focus on, phases you can skip — updates in real time as you click.</p>
+          <InteractiveDecisionTree onNavigate={navigate} />
+          <Callout kind="green"><strong>New to docking?</strong> Start with the worked example — <a href="case-study.html" style={{color:'#065F46',fontWeight:700}}>dock capsaicin into TRPV1 step-by-step →</a> Eleven checkpoints, real coordinates, paste your own screenshots into each.</Callout>
+        </section>
+
+        {/* All 9 phases, rendered from data */}
+        {D.PHASES.map(phase => (
+          <PhaseSection key={phase.id}
+                        phase={phase}
+                        openSteps={openSteps}
+                        onToggleStep={toggleStep} />
+        ))}
+
+        {/* Closing note */}
+        <section className="content-section">
+          <div className="section-tag"><span className="tag-dot" style={{background:'var(--de-accent)'}} />Wrap-up</div>
+          <h2 className="section-title">You've finished the protocol</h2>
+          <p className="section-desc">Read the <a style={{color:'var(--de-accent-dark)', fontWeight:600, textDecoration:'none'}} href="quickref.html">quick-reference card</a> for the one-page version of everything above. The <a style={{color:'var(--de-accent-dark)', fontWeight:600, textDecoration:'none'}} href="glossary.html">glossary</a> defines every term used. The <a style={{color:'var(--de-accent-dark)', fontWeight:600, textDecoration:'none'}} href="references.html">references</a> page lists every tool's primary citation.</p>
+        </section>
+      </main>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Brand">
+          <AccentSwatchRow value={t.accent} onChange={v => setTweak('accent', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+<script>
+/* PWA — register service worker for offline use */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(err => console.warn('[sw] register failed', err));
+  });
+}
+</script>
+</body>
+</html>

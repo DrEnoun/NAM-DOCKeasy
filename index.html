@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAM-DockEasy — Molecular Docking Core Framework</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<style>
+/* Home-only layout */
+.home-grid {
+  padding: 56px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+.home-card {
+  background: white;
+  border: 1px solid var(--gray-2);
+  border-radius: 12px;
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+.home-card:hover { box-shadow: 0 12px 32px rgba(10,22,40,0.12); transform: translateY(-2px); }
+.home-card .hc-letter {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 22px;
+  background: var(--hc-bg, var(--gray-1));
+  color: var(--hc-fg, var(--gray-5));
+}
+.home-card .hc-title { font-family: var(--font-display); font-size: 22px; color: var(--dark); line-height: 1.2; }
+.home-card .hc-body  { font-size: 13px; color: var(--gray-4); line-height: 1.65; }
+.home-card .hc-cta { margin-top: auto; font-size: 12px; font-weight: 600; color: var(--de-accent-dark); display: inline-flex; align-items: center; gap: 6px; }
+.home-card .hc-cta::after { content: '→'; }
+
+.home-card.coral { --hc-bg: var(--de-accent-lt); --hc-fg: var(--de-accent-dark); }
+.home-card.teal  { --hc-bg: var(--teal-lt);     --hc-fg: var(--teal-dark); }
+.home-card.gold  { --hc-bg: var(--gold-lt);     --hc-fg: var(--gold-dark); }
+.home-card.sage  { --hc-bg: var(--sage-lt);     --hc-fg: var(--sage-dark); }
+.home-card.lilac { --hc-bg: var(--lilac-lt);    --hc-fg: var(--lilac-dark); }
+
+.home-foot {
+  padding: 32px 48px 60px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 36px;
+  align-items: center;
+  border-top: 1px solid var(--gray-2);
+  font-size: 11.5px; color: var(--gray-4);
+  line-height: 1.6;
+}
+.home-foot a { color: var(--de-accent-dark); text-decoration: none; font-weight: 600; }
+
+.author-block { display: flex; align-items: center; gap: 18px; }
+.author-portrait {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 18%;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  flex-shrink: 0;
+}
+.author-meta .author-eyebrow {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--de-accent-dark);
+  margin-bottom: 4px;
+}
+.author-meta .author-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--dark);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.author-meta .author-aff { font-size: 12px; color: var(--gray-4); line-height: 1.55; }
+
+.brand-block {
+  text-align: right;
+  border-left: 1px solid var(--gray-2);
+  padding-left: 28px;
+  max-width: 320px;
+}
+.brand-block .brand-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.brand-block .brand-name em { font-style: italic; color: var(--de-accent-dark); }
+
+@media (max-width: 768px) {
+  .home-grid { grid-template-columns: 1fr; padding: 28px 20px; }
+  .home-foot { grid-template-columns: 1fr; gap: 22px; padding: 24px 20px 40px; }
+  .brand-block {
+    text-align: left;
+    border-left: none;
+    border-top: 1px solid var(--gray-2);
+    padding-left: 0;
+    padding-top: 18px;
+    max-width: none;
+  }
+}
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="accent-coral" data-screen-label="Home">
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div id="root"></div>
+
+<script src="content.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="Hero.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "accent": "coral"
+}/*EDITMODE-END*/;
+
+/* Custom 5-swatch accent picker — values are accent-class tokens (coral/teal/…). */
+const ACCENTS = [
+  { value: 'coral', color: '#F87171' },
+  { value: 'teal',  color: '#2DD4BF' },
+  { value: 'sky',   color: '#38BDF8' },
+  { value: 'lilac', color: '#A78BFA' },
+  { value: 'amber', color: '#F59E0B' },
+];
+function AccentSwatchRow({ value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-label">Accent</div>
+      <div style={{display:'flex', gap:6}}>
+        {ACCENTS.map(a => (
+          <button key={a.value}
+                  onClick={() => onChange(a.value)}
+                  title={a.value}
+                  style={{
+                    width: 26, height: 26, borderRadius: 6,
+                    background: a.color,
+                    border: value === a.value ? '2px solid #0F172A' : '2px solid transparent',
+                    boxShadow: '0 0 0 1px rgba(0,0,0,0.06)',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULS);
+
+  useEffect(() => {
+    document.body.className = 'accent-' + t.accent;
+  }, [t.accent]);
+
+  useEffect(() => {
+    const btn = document.getElementById('menuToggle');
+    const h = () => setSidebarOpen(v => !v);
+    btn?.addEventListener('click', h);
+    return () => btn?.removeEventListener('click', h);
+  }, []);
+
+  return (
+    <>
+      <Sidebar currentPage="home" open={sidebarOpen} onDismiss={() => setSidebarOpen(false)} />
+      <main className="main">
+        <Hero pills={false} />
+        <div className="home-grid">
+          <a className="home-card coral" href="tutorial.html">
+            <div className="hc-letter">T</div>
+            <div className="hc-title">Tutorial</div>
+            <div className="hc-body">The full 9-phase protocol. Start with the interactive decision tree, then work through Receptor → Ligand → Site ID → Grid → Dock → Analyse → Interactions → Validate → MD handoff.</div>
+            <div className="hc-cta">Open tutorial</div>
+          </a>
+          <a className="home-card sage" href="case-study.html">
+            <div className="hc-letter">★</div>
+            <div className="hc-title">Case study · <em style={{fontStyle:'italic'}}>Capsaicin → TRPV1</em></div>
+            <div className="hc-body">A real worked example. Dock the active compound of chilli into the pain receptor (PDB 8JQR) with AMDock. Eleven checkpoint-tracked steps; paste your own screenshots into each.</div>
+            <div className="hc-cta">Start case study</div>
+          </a>
+          <a className="home-card teal" href="quickref.html">
+            <div className="hc-letter">Q</div>
+            <div className="hc-title">Quick reference</div>
+            <div className="hc-body">Every threshold, every default, every pass criterion on one printable card. Pin it above your bench.</div>
+            <div className="hc-cta">Open quick ref</div>
+          </a>
+          <a className="home-card gold" href="glossary.html">
+            <div className="hc-letter">G</div>
+            <div className="hc-title">Glossary</div>
+            <div className="hc-body">Plain-English definitions for every term used in the tutorial — from <em>binding affinity</em> to <em>π-stacking</em> to <em>PDBQT</em>.</div>
+            <div className="hc-cta">Open glossary</div>
+          </a>
+          <a className="home-card lilac" href="references.html">
+            <div className="hc-letter">R</div>
+            <div className="hc-title">References</div>
+            <div className="hc-body">Citable sources for every tool, scoring function, and pass-threshold quoted in the protocol.</div>
+            <div className="hc-cta">Open references</div>
+          </a>
+        </div>
+        <div className="home-foot">
+          <div className="author-block">
+            <img className="author-portrait" src="assets/nam-portrait.jpg" alt="Portrait of Dr Nur 'Ainun Mokhtar" />
+            <div className="author-meta">
+              <div className="author-eyebrow">Developed by</div>
+              <div className="author-name">Dr Nur 'Ainun Mokhtar</div>
+              <div className="author-aff">Faculty of Pharmacy, UiTM Bertam Campus, Malaysia<br/>Proliv Life Sciences · Synacinn™ Aidecine research programme</div>
+            </div>
+          </div>
+          <div className="brand-block">
+            <div className="brand-name">NAM-<em>DockEasy</em></div>
+            Sibling tutorial to <strong>NAM-NPeasy</strong> — Network Pharmacology Core Framework. Works offline once installed.
+          </div>
+        </div>
+      </main>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Brand">
+          <AccentSwatchRow value={t.accent} onChange={v => setTweak('accent', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+<script>
+/* PWA — register service worker for offline use */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(err => console.warn('[sw] register failed', err));
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAM-DockEasy — Quick Reference</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<style>
+/* Print-optimised: A4 portrait, no sidebar */
+@media print {
+  body { background: white !important; }
+  .sidebar, .menu-toggle, .no-print { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .qr-page { page-break-inside: avoid; padding: 0 !important; }
+  .qr-grid-print { grid-template-columns: repeat(2, 1fr) !important; }
+}
+.qr-print-frame {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 36px;
+}
+.qr-print-header {
+  display: flex; align-items: center; gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--de-accent);
+  margin-bottom: 22px;
+}
+.qr-print-header img { width: 54px; height: 54px; border-radius: 12px; }
+.qr-print-header h1 { font-family: var(--font-display); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.qr-print-header h1 em { font-style: italic; color: var(--de-accent-dark); }
+.qr-print-header p { font-size: 12px; color: var(--gray-4); margin-top: 2px; }
+.qr-print-sub { font-size: 13px; color: var(--gray-5); margin-bottom: 18px; }
+.qr-grid-print { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.qr-foot { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--gray-2); font-size: 11px; color: var(--gray-4); line-height: 1.55; }
+.print-btn {
+  position: fixed; top: 16px; right: 16px; z-index: 200;
+  background: var(--de-accent); color: white;
+  border: none; padding: 8px 14px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.print-btn:hover { filter: brightness(0.95); }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="accent-coral" data-screen-label="Quick Reference">
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<button class="print-btn no-print" onclick="window.print()">⎙ Print / Save PDF</button>
+<div id="root"></div>
+
+<script src="content.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+function App() {
+  const D = window.DOCKEASY;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    const btn = document.getElementById('menuToggle');
+    const h = () => setSidebarOpen(v => !v);
+    btn?.addEventListener('click', h);
+    return () => btn?.removeEventListener('click', h);
+  }, []);
+  return (
+    <>
+      <Sidebar currentPage="quickref" open={sidebarOpen} onDismiss={() => setSidebarOpen(false)} />
+      <main className="main">
+        <div className="qr-page">
+          <div className="qr-print-frame">
+            <div className="qr-print-header">
+              <img src="icons/icon-192.png" alt="" />
+              <div>
+                <h1>NAM-<em>DockEasy</em> · Quick Reference</h1>
+                <p>{D.BRAND.tagline} · Version 1.0</p>
+              </div>
+            </div>
+            <p className="qr-print-sub">Every threshold, default, and pass-criterion across the 9-phase protocol. Print A4 portrait, pin above your bench.</p>
+
+            <div className="qr-grid-print">
+              {D.QUICK_REF.map((cell, i) => (
+                <div className="qr-cell" key={i} style={{borderTop: `3px solid var(--${cell.hue})`}}>
+                  <div className="qr-cell-title" style={{color: `var(--${cell.hue}-dark)`}}>{cell.title}</div>
+                  {cell.rows.map((row, ri) => (
+                    <div className="qr-row" key={ri}>
+                      <span className="qr-label">{row[0]}</span>
+                      <span className="qr-val">{row[1]}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            <div className="qr-foot">
+              <strong>Decision tree summary.</strong> Known binding site? → targeted docking. Unknown? → Phase C blind dock first. Rigid receptor? → Vina. Flexible side chains? → AD4 flex residues. Large conformational change? → ensemble docking. Protein–protein system? → HADDOCK / ClusPro instead.
+              <br /><br />
+              <strong>Reproducibility checklist.</strong> Record PDB ID + resolution · ligand source + protonation pH · grid centre + size · exhaustiveness + seed · scoring function + version · redock RMSD.
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<script>
+/* PWA — register service worker for offline use */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(err => console.warn('[sw] register failed', err));
+  });
+}
+</script>
+</body>
+</html>

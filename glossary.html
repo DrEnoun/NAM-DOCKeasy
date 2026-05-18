@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAM-DockEasy — Glossary</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="accent-coral" data-screen-label="Glossary">
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div id="root"></div>
+
+<script src="content.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+function App() {
+  const D = window.DOCKEASY;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [q, setQ] = useState('');
+  useEffect(() => {
+    const btn = document.getElementById('menuToggle');
+    const h = () => setSidebarOpen(v => !v);
+    btn?.addEventListener('click', h);
+    return () => btn?.removeEventListener('click', h);
+  }, []);
+  const filtered = D.GLOSSARY.filter(g =>
+    !q || g.term.toLowerCase().includes(q.toLowerCase()) || g.def.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <>
+      <Sidebar currentPage="glossary" open={sidebarOpen} onDismiss={() => setSidebarOpen(false)} />
+      <main className="main">
+        <div className="hero" style={{padding: '52px 48px 44px'}}>
+          <div className="hero-tag">Reference</div>
+          <h1>Glossary</h1>
+          <p className="hero-sub" style={{maxWidth: 600}}>Plain-English definitions for every term used in the tutorial. {D.GLOSSARY.length} entries.</p>
+          <input type="text" placeholder="Search terms…" value={q} onChange={e => setQ(e.target.value)}
+                 style={{
+                   marginTop: 8, position: 'relative',
+                   width: '100%', maxWidth: 400,
+                   padding: '10px 14px',
+                   borderRadius: 999,
+                   border: '1px solid rgba(255,255,255,0.15)',
+                   background: 'rgba(255,255,255,0.06)',
+                   color: 'white',
+                   fontSize: 13,
+                   fontFamily: 'var(--font-body)',
+                   outline: 'none',
+                 }} />
+        </div>
+        <section className="content-section">
+          <div className="glossary">
+            {filtered.length ? filtered.map((g, i) => (
+              <div className="glossary-item" key={i}>
+                <div className="glossary-term">{g.term}</div>
+                <div className="glossary-def" dangerouslySetInnerHTML={{__html: g.def}} />
+              </div>
+            )) : (
+              <div style={{padding: '24px 0', color: 'var(--gray-4)', fontSize: 13}}>No matches for "{q}".</div>
+            )}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<script>
+/* PWA — register service worker for offline use */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(err => console.warn('[sw] register failed', err));
+  });
+}
+</script>
+</body>
+</html>

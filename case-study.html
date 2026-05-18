@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAM-DockEasy — Case Study: Capsaicin → TRPV1</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A1628">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="accent-coral" data-screen-label="Case Study">
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div id="root"></div>
+
+<script src="content.js"></script>
+<script src="case-study-data.js"></script>
+<script src="image-slot.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* localStorage key for tracking completed step numbers */
+const STORE_KEY = 'dockeasy-case-progress-capsaicin-trpv1';
+
+function CaseStep({ step, caseId, done, onToggle, isOpen, onExpand }) {
+  return (
+    <div className={"case-step ph-" + step.hue + (done ? ' done' : '')}>
+      <div className="case-step-head" onClick={onExpand}>
+        <div className="case-step-num">{String(step.n).padStart(2,'0')}</div>
+        <div className="case-step-titles">
+          <div className="case-step-phase">{step.phase}</div>
+          <div className="case-step-title">{step.title}</div>
+          <div className="case-step-tool">{step.tool}</div>
+        </div>
+        <button className="case-check"
+                onClick={e => { e.stopPropagation(); onToggle(); }}
+                title={done ? 'Mark as not done' : 'Mark as done'}>
+          ✓
+        </button>
+      </div>
+      {isOpen ? (
+        <div className="case-step-body">
+          <div>
+            <ul className="case-do">
+              {step.do.map((d, i) => <li key={i} dangerouslySetInnerHTML={{__html: d}} />)}
+            </ul>
+            {step.values ? (
+              <div className="case-values">
+                <div className="case-values-label">Values to record</div>
+                {step.values.map((v, i) => (
+                  <div className="case-values-row" key={i}>
+                    <span className="l">{v[0]}</span>
+                    <span className="v">{v[1]}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {step.callout ? (
+              <div className={"callout callout-" + step.callout.kind}
+                   style={{marginTop: 12}}
+                   dangerouslySetInnerHTML={{__html: step.callout.body}} />
+            ) : null}
+          </div>
+          <div className="case-side">
+            <image-slot
+              id={"case-" + caseId + "-step-" + step.n}
+              class="case-slot-frame"
+              shape="rounded"
+              radius="12"
+              placeholder={step.slotPlaceholder}
+            ></image-slot>
+            {step.expects ? (
+              <div className="case-expects">
+                <strong>What you should see · </strong>{step.expects}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function App() {
+  const D = window.DOCKEASY;
+  const caseStudy = D.CASES[0];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [done, setDone] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]')); } catch { return new Set(); }
+  });
+  const [openStep, setOpenStep] = useState(1);
+
+  useEffect(() => {
+    localStorage.setItem(STORE_KEY, JSON.stringify([...done]));
+  }, [done]);
+
+  useEffect(() => {
+    const btn = document.getElementById('menuToggle');
+    const h = () => setSidebarOpen(v => !v);
+    btn?.addEventListener('click', h);
+    return () => btn?.removeEventListener('click', h);
+  }, []);
+
+  function toggleDone(n) {
+    setDone(d => {
+      const next = new Set(d);
+      if (next.has(n)) next.delete(n); else next.add(n);
+      return next;
+    });
+  }
+  function expand(n) {
+    setOpenStep(curr => curr === n ? null : n);
+  }
+  function jumpToNext() {
+    const next = caseStudy.steps.find(s => !done.has(s.n));
+    if (next) {
+      setOpenStep(next.n);
+      const el = document.getElementById('case-step-' + next.n);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 70;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }
+  }
+  function resetProgress() {
+    if (confirm('Clear all checkmarks for this case study?')) setDone(new Set());
+  }
+
+  const total = caseStudy.steps.length;
+  const completed = done.size;
+  const pct = Math.round((completed / total) * 100);
+
+  return (
+    <>
+      <Sidebar currentPage="case-study" open={sidebarOpen} onDismiss={() => setSidebarOpen(false)} />
+      <main className="main">
+        <div className="case-hero">
+          <div className="case-eyebrow">Worked case study · {caseStudy.estimated_time}</div>
+          <h1 className="case-h1">
+            <em>{caseStudy.ligand.name}</em>
+            <span className="case-arrow"> → </span>
+            <em>{caseStudy.receptor.name}</em>
+          </h1>
+          <p className="case-h1-sub">{caseStudy.subtitle}. A full worked example walking through the protocol with real coordinates, real software, and real outputs — paste your own screenshots into each step's slot to build your personal lab notebook.</p>
+          <div className="case-meta">
+            <div className="case-meta-cell">
+              <div className="case-meta-label">Receptor</div>
+              <div className="case-meta-value">{caseStudy.receptor.name}<small>PDB · {caseStudy.receptor.pdb}</small></div>
+            </div>
+            <div className="case-meta-cell">
+              <div className="case-meta-label">Ligand</div>
+              <div className="case-meta-value">{caseStudy.ligand.name}<small>{caseStudy.ligand.source}</small></div>
+            </div>
+            <div className="case-meta-cell">
+              <div className="case-meta-label">Engine</div>
+              <div className="case-meta-value">{caseStudy.engine}<small>Free · open source</small></div>
+            </div>
+            <div className="case-meta-cell">
+              <div className="case-meta-label">Phases covered</div>
+              <div className="case-meta-value">
+                <span className="case-phase-chips">
+                  {caseStudy.phases_covered.map(p => <span key={p} className="case-phase-chip">{p}</span>)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="case-progress">
+          <div className="case-progress-count"><strong>{completed}/{total}</strong> done · {pct}%</div>
+          <div className="case-progress-track">
+            <div className="case-progress-fill" style={{ width: pct + '%' }} />
+          </div>
+          <button className="case-progress-cta" onClick={jumpToNext} disabled={completed === total}>
+            {completed === total ? '✓ All done' : 'Jump to next ↓'}
+          </button>
+          <button className="case-progress-cta" onClick={resetProgress} style={{color: 'var(--gray-4)'}}>Reset</button>
+        </div>
+
+        <section className="content-section">
+          {caseStudy.steps.map(step => (
+            <div id={'case-step-' + step.n} key={step.n}>
+              <CaseStep step={step}
+                        caseId={caseStudy.id}
+                        done={done.has(step.n)}
+                        onToggle={() => toggleDone(step.n)}
+                        isOpen={openStep === step.n}
+                        onExpand={() => expand(step.n)} />
+            </div>
+          ))}
+
+          <div className="case-wrap">
+            <h3>You've docked <em>capsaicin</em> into <em>TRPV1</em>.</h3>
+            <p><strong>Outcome.</strong> {caseStudy.outcome}</p>
+            <p style={{marginTop: 14}}><strong>Next.</strong> Run a 100 ns MD simulation of the complex (Phase I in the main tutorial) to confirm the pose is stable. Then plan a wet-lab assay — TRPV1 calcium imaging or capsaicin-displacement binding — to confirm the prediction.</p>
+            <div className="case-wrap-row">
+              <a className="case-wrap-cta" href="tutorial.html#phH">Continue to Phase H · Validate →</a>
+              <a className="case-wrap-cta secondary" href="quickref.html">Open quick reference</a>
+              <a className="case-wrap-cta secondary" href="references.html">See citations</a>
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<script>
+/* PWA — register service worker for offline use */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(err => console.warn('[sw] register failed', err));
+  });
+}
+</script>
+</body>
+</html>
